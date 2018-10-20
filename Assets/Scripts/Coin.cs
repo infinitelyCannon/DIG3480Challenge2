@@ -4,11 +4,9 @@ using UnityEngine;
 
 public class Coin : MonoBehaviour {
 
-    private AudioSource sound;
-
 	// Use this for initialization
 	void Start () {
-        sound = gameObject.GetComponent<AudioSource>();
+
 	}
 	
 	// Update is called once per frame
@@ -20,10 +18,8 @@ public class Coin : MonoBehaviour {
     {
         if (collision.gameObject.CompareTag("Player"))
         {
-            Destroy(gameObject.GetComponent<SpriteRenderer>());
-            collision.gameObject.GetComponent<PlayerController>().AddToScore(100);
-            sound.Play();
-            Destroy(gameObject, 0.5f);
+            collision.gameObject.GetComponent<PlayerController>().AddToScore(100, true);
+            Destroy(gameObject);
         }
     }
 }

@@ -5,6 +5,9 @@ TagManager:
   serializedVersion: 2
   tags:
   - Ground
+  - Blocks
+  - Enemy
+  - Pole
   layers:
   - Default
   - TransparentFX
@@ -15,8 +18,8 @@ TagManager:
   - 
   - 
   - Ground
-  - 
-  - 
+  - Blocks
+  - Powerups
   - 
   - 
   - 
@@ -47,6 +50,12 @@ TagManager:
     locked: 0
   - name: Ground
     uniqueID: 1258290607
+    locked: 0
+  - name: Items
+    uniqueID: 3080989337
+    locked: 0
+  - name: Blocks
+    uniqueID: 306372325
     locked: 0
   - name: Player
     uniqueID: 601684341

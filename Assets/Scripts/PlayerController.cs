@@ -1,6 +1,8 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 
 public class PlayerController : MonoBehaviour {
 
@@ -11,10 +13,15 @@ public class PlayerController : MonoBehaviour {
     private int score = 0;
     private AudioSource sound;
 
+    public Text scoreText;
+    public Text endText;
     public float speed;
     public float jumpForce;
+    public string[] solidTags;
+    public AudioClip[] soundFXs;
 
-    private bool isOnGround;
+    [HideInInspector]
+    public bool isOnGround;
     public Transform groundCheck;
     public float checkRadius;
     public LayerMask allGround;
@@ -24,13 +31,44 @@ public class PlayerController : MonoBehaviour {
         rBody = gameObject.GetComponent<Rigidbody2D>();
         anim = gameObject.GetComponent<Animator>();
         sound = gameObject.GetComponent<AudioSource>();
+        scoreText.text = "MARIO\n0";
 	}
 	
 	// Update is called once per frame
 	void Update () {
         if (Input.GetKey(KeyCode.Escape)) Application.Quit();
 
-        if (Input.GetKeyDown(KeyCode.Z)) Debug.Log("Score: " + score);
+        if (transform.position.y <= -6f)
+        {
+            GameObject.Find("Main Camera").GetComponent<CameraController>().Stop();
+            isDead = true;
+            anim.SetBool("isJumping", false);
+            anim.SetTrigger("Death");
+            GameOver();
+        }
+
+        if (isDead && Input.GetKeyDown(KeyCode.Space)) SceneManager.LoadScene(0);
+    }
+
+    public void GameOver()
+    {
+        if (isDead)
+        {
+            endText.text = "Game Over\nPress Spacebar to restart.";
+        }
+        else
+        {
+            endText.text = "Game Over\nYou Won!";
+        }
+    }
+
+    public void Die()
+    {
+        GameObject.Find("Main Camera").GetComponent<CameraController>().Stop();
+        isDead = true;
+        anim.SetTrigger("Death");
+        rBody.gravityScale = 0;
+        GameOver();
     }
 
     private void FixedUpdate()
@@ -51,12 +89,27 @@ public class PlayerController : MonoBehaviour {
                 Flip();
             else if (facingRight && moveHorizontal < 0)
                 Flip();
+
+            if(Input.GetKeyDown(KeyCode.W) || Input.GetKeyUp(KeyCode.UpArrow) && isOnGround)
+            {
+                rBody.velocity = Vector2.up * jumpForce;
+                PlaySound(0);
+            }
         }
     }
 
-    public void AddToScore(int value)
+    public void AddToScore(int value, bool playSound = false)
     {
         score += value;
+        scoreText.text = "MARIO\n" + score;
+
+        if (playSound) PlaySound(1);
+    }
+
+    public void PlaySound(int index)
+    {
+        sound.clip = soundFXs[index];
+        sound.Play();
     }
 
     void Flip()
@@ -67,15 +120,25 @@ public class PlayerController : MonoBehaviour {
         transform.localScale = scale;
     }
 
+    bool isSolidTag(string tag)
+    {
+        foreach(string t in solidTags)
+        {
+            if (tag.Equals(t)) return true;
+        }
+
+        return false;
+    }
+
     private void OnCollisionStay2D(Collision2D collision)
     {
-        if(collision.collider.tag == "Ground" && isOnGround && !isDead)
+        /*if (isSolidTag(collision.collider.tag) && isOnGround && !isDead)
         {
-            if (Input.GetAxisRaw("Vertical") > 0)
+            if (Input.GetKeyDown(KeyCode.W) || Input.GetKeyDown(KeyCode.UpArrow))
             {
                 rBody.velocity = Vector2.up * jumpForce;
-                sound.Play();
+                PlaySound(0);
             }
-        }
+        }*/
     }
 }
